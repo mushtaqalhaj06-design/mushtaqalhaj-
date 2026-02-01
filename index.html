@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VIP Catalog - Degrees 38 Professional Store" />
+    <title>VIP Catalog - Degrees 38</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&<displ></displ>ay=swap" rel="stylesheet">
+    
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f9fafb; -webkit-tap-highlight-color: transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+        .animate-pulse-slow { animation: pulse 3s infinite; }
+        .loading-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <div id="root"></div>
+    <div id="loading-screen" style="position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #ffffff; z-index: 9999;">
+        <div class="loading-spin" style="width: 50px; height: 50px; border: 3px solid #f3f4f6; border-top-color: #dc2626; border-radius: 50%;"></div>
+        <p style="margin-top: 15px; color: #6b7280; font-weight: bold;">جاري تحميل نظام الأسطورة المطور...</p>
+    </div>
+
+    <script type="module">
+        import React, { useState, useEffect, useMemo } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+
+        const fixImg = (url) => {
+            if (!url) return "";
+            let link = String(url).trim();
+            if (link === "0") return "0";
+            if (link.includes('drive.google.com')) {
+                let fileId = "";
+                if (link.includes('/d/')) fileId = link.split('/d/')[1]?.split('/')[0] || "";
+                else if (link.includes('id=')) fileId = new URLSearchParams(link.split('?')[1]).get('id') || "";
+                if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+            }
+            return link;
+        };
+
+        const formatPrice = (price) => {
+            if (price === null || price === undefined || price === "") return "";
+            const num = parseFloat(price);
+            return isNaN(num) ? price.toString() : num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+
+        const Icons = {
+            Menu: ({ size = 24 }) => _jsx("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: _jsx("path", { d: "M4 6h16M4 12h16M4 18h16" }) }),
+            Search: ({ size = 24, className }) => _jsxs("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", className: className, children: [_jsx("circle", { cx: "11", cy: "11", r: "8" }), _jsx("path", { d: "m21 21-4.3-4.3" })] }),
+            X: ({ size = 24 }) => _jsx("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: _jsx("path", { d: "M18 6 6 18M6 6l12 12" }) }),
+            ShoppingBag: ({ size = 24 }) => _jsxs("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [_jsx("path", { d: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" }), _jsx("path", { d: "M3 6h18" }), _jsx("path", { d: "M16 10a4 4 0 0 1-8 0" })] })
+        };
+
+        const ProductCard = ({ data, theme, defaultDiscountIcon, globalBtnUrl }) => {
+            const iconUrl = data.discountIconUrl || defaultDiscountIcon;
+            let finalBtnUrl = data.btnUrl;
+            if (data.btnUrl === "0") finalBtnUrl = "";
+            else if (!data.btnUrl) finalBtnUrl = globalBtnUrl;
+
+            const stickerTX = `calc(-50% + ${data.stickerX}px)`;
+            const stickerTY = `calc(-50% + ${data.stickerOffset}px)`;
+            const btnTX = `calc(-50% + ${data.btnX}px)`;
+            const btnTY = `calc(-50% + ${data.btnY}px)`;
+
+            const getBg = (c, def) => {
+                const color = c || def || '#ffffff';
+                if (typeof color === 'string' && color.startsWith('http')) return { backgroundImage: `url('${fixImg(color)}')`, backgroundSize: 'cover', backgroundPosition: 'center' };
+                return { backgroundColor: color };
+            };
+
+            return _jsxs("div", {
+                className: "group flex flex-col rounded-2xl overflow-hidden shadow-sm border border-gray-100 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                style: getBg(data.cardMainBackground, theme.cardBackground),
+                children: [
+                    _jsxs("div", {
+                        className: "relative aspect-square m-0.5 rounded-xl overflow-hidden flex items-center justify-center",
+                        style: getBg(data.imageWrapperBackground),
+                        children: [
+                            data.discount && _jsx("div", {
+                                className: "absolute top-1 right-1 z-30 w-12 h-12 flex items-center justify-center animate-pulse-slow",
+                                children: iconUrl ? _jsxs("div", {
+                                    className: "relative w-full h-full",
+                                    children: [_jsx("img", { src: iconUrl, className: "w-full h-full object-contain" }), _jsx("span", { className: "absolute inset-0 flex items-center justify-center text-white text-lg font-black pt-1", style: { textShadow: '0 1px 2px rgba(0,0,0,0.4)' }, children: data.discount })]
+                                }) : _jsx("div", { className: "bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm", children: data.discount })
+                            }),
+                            _jsx("img", { src: data.imageUrl, className: "w-[98%] h-[98%] object-contain group-hover:scale-105 transition-transform duration-500", loading: "lazy" })
+                        ]
+                    }),
+                    _jsxs("div", {
+                        className: "p-3 flex flex-col flex-1 text-center",
+                        children: [
+                            _jsx("h3", { className: "text-[11px] font-bold mb-2 line-clamp-3 leading-tight min-h-[3em]", style: { color: theme.productName }, children: data.name }),
+                            _jsxs("div", {
+                                className: "mt-auto",
+                                children: [
+                                    _jsxs("div", {
+                                        className: "relative w-full flex items-center justify-center isolate",
+                                        style: { minHeight: '80px' },
+                                        children: [
+                                            data.stickerUrl && data.stickerUrl !== "0" && _jsx("img", {
+                                                src: data.stickerUrl,
+                                                className: "absolute top-1/2 left-1/2 -z-10 max-w-none pointer-events-none",
+                                                style: { width: `${data.stickerWidth}px`, transform: `translate(${stickerTX}, ${stickerTY})`, objectFit: 'contain' }
+                                            }),
+                                            _jsxs("div", {
+                                                className: "relative z-10 flex flex-col items-center justify-center",
+                                                children: [
+                                                    data.oldPrice && _jsx("span", { className: "line-through font-bold opacity-60 mb-0.5", style: { color: theme.oldPrice, transform: `translate(${data.dataBX}px, ${data.dataBY}px)`, fontSize: `${data.dataBSize}px` }, children: formatPrice(data.oldPrice) }),
+                                                    _jsx("div", { className: "font-black tracking-tighter", style: { color: theme.currentPrice, transform: `translate(${data.dataCX}px, ${data.dataCY}px)`, fontSize: `${data.dataCSize}px` }, children: formatPrice(data.newPrice) })
+                                                ]
+                                            })
+                                        ]
+                                    }),
+                                    finalBtnUrl ? (
+                                        _jsx("div", { className: "relative w-full", style: { minHeight: '60px' }, children: _jsx("a", { href: data.productLink, target: "_blank", className: "absolute top-1/2 left-1/2 z-20 transition-transform active:scale-95", style: { width: `${data.btnWidth}px`, transform: `translate(${btnTX}, ${btnTY})` }, children: _jsx("img", { src: finalBtnUrl, className: "w-full h-auto object-contain" }) }) })
+                                    ) : (
+                                        _jsxs("a", { href: data.productLink, target: "_blank", className: "flex items-center justify-center gap-2 w-full py-3 rounded-xl text-[13px] font-black shadow-sm mt-2", style: { backgroundColor: theme.buyButtonBg, color: theme.buyButtonText }, children: [_jsx(Icons.ShoppingBag, { size: 15 }), _jsx("span", { children: "اشتري الآن" })] })
+                                    )
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            });
+        };
+
+        const App = () => {
+            const [data, setData] = useState(null);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+            useEffect(() => {
+                const cb = 'jsonp_' + Math.floor(Math.random() * 1000000);
+                window[cb] = (res) => {
+                    const rows = res.table.rows;
+                    const get = (r, c) => rows[r]?.c[c]?.v;
+                    
+                    const theme = {
+                        searchBarBg:       get(1, 9) || '#f3f4f6', 
+                        headerStoreName:   get(2, 9) || '#1f2937', 
+                        headerBottomStrip: get(3, 9) || '#e5e7eb', 
+                        contactIcons:      get(4, 9) || '#ef4444', 
+                        productName:       get(5, 9) || '#1f2937', 
+                        cardBackground:    get(6, 9) || '#ffffff', 
+                        oldPrice:          get(7, 9) || '#9ca3af', 
+                        currentPrice:      get(8, 9) || '#dc2626', 
+                        buyButtonBg:       get(9, 9) || '#dc2626', 
+                        buyButtonText:     get(10, 9) || '#ffffff', 
+                        footerBg:          get(11, 9) || '#ffffff', 
+                        devStripBg:        get(12, 9) || '#f9fafb', 
+                        devNameText:       get(13, 9) || '#374151', 
+                        copyrightText:     get(14, 9) || '#9ca3af', 
+                    };
+
+                    const globalBtnUrl = fixImg(get(0, 32));
+
+                    const grid = []; const menu = [];
+                    rows.forEach(r => {
+                        const c = r.c; if (!c) return;
+                        if (c[7]?.v) grid.push({ type: 'banner', data: { imageUrl: fixImg(c[7].v), link: c[8]?.v } });
+                        if (c[0]?.v) grid.push({
+                            type: 'product',
+                            data: {
+                                name: String(c[0].v), oldPrice: c[1]?.v ?? "", newPrice: c[2]?.v ?? "",
+                                discount: c[3]?.v ? (typeof c[3].v === 'number' ? Math.round(c[3].v * 100) + '%' : c[3].v) : "",
+                                imageUrl: fixImg(c[4]?.v), productLink: c[5]?.v || "#",
+                                imageWrapperBackground: c[21]?.v || "#ffffff", cardMainBackground: c[6]?.v || "", 
+                                discountIconUrl: fixImg(c[20]?.v), stickerUrl: fixImg(c[22]?.v),
+                                stickerWidth: parseFloat(c[23]?.v) || 100, stickerOffset: parseFloat(c[24]?.v) || 0, stickerX: parseFloat(c[25]?.v) || 0,
+                                dataBSize: parseFloat(c[26]?.v) || 10, dataBY: parseFloat(c[27]?.v) || 0, dataBX: parseFloat(c[28]?.v) || 0,
+                                dataCSize: parseFloat(c[29]?.v) || 30, dataCY: parseFloat(c[30]?.v) || 0, dataCX: parseFloat(c[31]?.v) || 0,
+                                btnUrl: c[32]?.v === 0 || c[32]?.v === "0" ? "0" : fixImg(c[32]?.v), 
+                                btnWidth: parseFloat(c[33]?.v) || 150, btnY: parseFloat(c[34]?.v) || 0, btnX: parseFloat(c[35]?.v) || 0
+                            }
+                        });
+                        if (c[14]?.v) menu.push({ link: c[13]?.v || "#", iconUrl: fixImg(c[14]?.v), label: c[15]?.v || "" });
+                    });
+
+                    setData({ 
+                        theme, grid, menu, globalBtnUrl, 
+                        config: { 
+                            logo: fixImg(get(0, 11)), bg: fixImg(get(0, 12)), store: get(0, 10) || 'Degrees 38', 
+                            copy: get(0, 16) || '', 
+                            disc: fixImg(get(0, 20)),
+                            devLogo: fixImg(get(0, 17)), // R2
+                            devLink: get(0, 18) || '#',   // S2
+                            devName: get(0, 19) || 'Degrees 38' // T2
+                        } 
+                    });
+                    document.getElementById('loading-screen').style.display = 'none';
+                };
+                const s = document.createElement('script');
+                s.src = `https://docs.google.com/spreadsheets/d/1bxECfd-zyt0kQKlJ1yuPypgW8NbS04XiAS49oYHQO8A/gviz/tq?tqx=responseHandler:${cb}`;
+                document.body.appendChild(s);
+            }, []);
+
+            const filtered = useMemo(() => {
+                if (!data) return [];
+                if (!searchTerm.trim()) return data.grid;
+                return data.grid.filter(i => i.type === 'banner' || (i.type === 'product' && i.data.name.toLowerCase().includes(searchTerm.toLowerCase())));
+            }, [data, searchTerm]);
+
+            if (!data) return null;
+
+            return _jsxs("div", {
+                className: "min-h-screen relative",
+                style: data.config.bg ? { backgroundImage: `url('${data.config.bg}')`, backgroundSize: 'cover', backgroundAttachment: 'fixed' } : {},
+                children: [
+                    data.config.bg && _jsx("div", { className: "fixed inset-0 bg-white/40 backdrop-blur-[2px] z-0" }),
+                    _jsxs("div", {
+                        className: "relative z-10",
+                        children: [
+                            _jsx("header", {
+                                className: "sticky top-0 z-50 glass-effect px-4 py-3 shadow-sm",
+                                style: { borderBottom: `1px solid ${data.theme.headerBottomStrip}` },
+                                children: _jsxs("div", {
+                                    className: "max-w-6xl mx-auto flex items-center justify-between gap-4",
+                                    children: [
+                                        _jsxs("div", { className: "flex items-center gap-3", children: [_jsx("button", { onClick: () => setIsSidebarOpen(true), className: "p-2 bg-gray-100 rounded-xl", children: _jsx(Icons.Menu, { size: 20 }) }), data.config.logo && _jsx("img", { src: data.config.logo, className: "w-10 h-10 object-contain" }), _jsx("h1", { className: "font-black hidden sm:block", style: { color: data.theme.headerStoreName }, children: data.config.store })] }),
+                                        _jsxs("div", { className: "flex-1 max-w-md relative", children: [_jsx(Icons.Search, { className: "absolute right-3 top-2.5 text-gray-400", size: 18 }), _jsx("input", { type: "text", placeholder: "بحث في المتجر...", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "w-full rounded-2xl px-10 py-2.5 text-sm outline-none font-bold text-gray-700", style: { backgroundColor: data.theme.searchBarBg } })] })
+                                    ]
+                                })
+                            }),
+                            _jsx("main", { className: "max-w-6xl mx-auto p-4", children: _jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6", children: filtered.map((i, idx) => i.type === 'banner' ? _jsx("div", { className: "col-span-full", children: _jsx("img", { src: i.data.imageUrl, className: "w-full rounded-2xl shadow-sm" }) }, idx) : _jsx(ProductCard, { data: i.data, theme: data.theme, defaultDiscountIcon: data.config.disc, globalBtnUrl: data.globalBtnUrl }, idx)) }) }),
+                            _jsxs("aside", { className: `fixed inset-y-0 right-0 w-80 bg-white z-[110] transition-transform duration-500 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} shadow-2xl`, children: [
+                                _jsxs("div", { className: "p-6 border-b flex justify-between items-center bg-gray-50/50", children: [_jsx("span", { className: "font-black text-xl", children: "تواصل معنا" }), _jsx("button", { onClick: () => setIsSidebarOpen(false), children: _jsx(Icons.X, { size: 24 }) })] }),
+                                _jsx("div", { className: "p-4 space-y-3 overflow-y-auto h-[calc(100%-80px)] custom-scrollbar", children: data.menu.map((m, idx) => _jsxs("a", { href: m.link, target: "_blank", className: "flex items-center gap-4 p-4 rounded-2xl border border-gray-100", children: [_jsx("div", { className: "w-12 h-12 bg-white rounded-xl p-2 flex items-center justify-center shadow-sm", children: _jsx("img", { src: m.iconUrl, className: "w-full h-full object-contain" }) }), _jsx("span", { className: "font-bold text-sm", style: { color: data.theme.contactIcons }, children: m.label })] }, idx)) })
+                            ] }),
+                            isSidebarOpen && _jsx("div", { onClick: () => setIsSidebarOpen(false), className: "fixed inset-0 bg-black/40 z-[100] backdrop-blur-sm" }),
+                            _jsxs("footer", { className: "p-10 text-center", style: { backgroundColor: data.theme.footerBg }, children: [
+                                _jsx("p", { className: "font-bold opacity-60 text-sm mb-4", style: { color: data.theme.copyrightText }, children: data.config.copy }),
+                                _jsxs("a", { href: data.config.devLink, target: "_blank", className: "inline-flex items-center gap-2 px-6 py-3 rounded-full shadow-sm border border-gray-100 bg-white hover:scale-105 transition-transform", style: { backgroundColor: data.theme.devStripBg }, children: [
+                                    _jsx("span", { className: "text-xs font-medium", style: { color: data.theme.devNameText }, children: "تطوير بواسطة:" }),
+                                    data.config.devLogo && _jsx("img", { src: data.config.devLogo, className: "w-6 h-6 object-contain" }),
+                                    _jsx("span", { className: "text-sm font-black", style: { color: data.theme.devNameText }, children: data.config.devName })
+                                ] })
+                            ] })
+                        ]
+                    })
+                ]
+            });
+        };
+        ReactDOM.createRoot(document.getElementById('root')).render(_jsx(App, {}));
+    </script>
+</body>
+</html>
